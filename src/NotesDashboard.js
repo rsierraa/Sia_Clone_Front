@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import API_BASE_URL from "./config";
 
 function NotesDashboard({ user, onLogout }) {
   const [notes, setNotes] = useState([]);
@@ -17,16 +18,16 @@ function NotesDashboard({ user, onLogout }) {
     setError("");
     
     try {
-      const response = await fetch("http://localhost:3000/notes", {
+      const response = await fetch(`${API_BASE_URL}/notes`, {
         method: "GET",
         headers: {
-          "user": user.userId
+          "client-id": user.userId
         }
       });
 
       if (response.ok) {
         const data = await response.json();
-        setNotes(data);
+        setNotes(data.notes || []);
       } else {
         setError("Error al cargar las notas");
       }
@@ -50,11 +51,11 @@ function NotesDashboard({ user, onLogout }) {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:3000/notes/id", {
+      const response = await fetch(`${API_BASE_URL}/notes`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "user": user.userId
+          "client-id": user.userId
         },
         body: JSON.stringify({ text: newNoteText })
       });

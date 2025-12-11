@@ -1,4 +1,6 @@
 import React from "react";
+import API_BASE_URL from "./config";
+
 function SignUpForm({ onRegisterSuccess }) {
   const [state, setState] = React.useState({
     name: "",
@@ -24,7 +26,7 @@ function SignUpForm({ onRegisterSuccess }) {
     const { name, user, password } = state;
 
     try {
-      const response = await fetch("http://localhost:3000/register", {
+      const response = await fetch(`${API_BASE_URL}/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -35,11 +37,11 @@ function SignUpForm({ onRegisterSuccess }) {
       if (response.status === 201) {
         const data = await response.json();
         // Store user data in localStorage
-        localStorage.setItem('userId', data.user_id || data.userId);
-        localStorage.setItem('userName', data.name);
+        localStorage.setItem('userId', data.id);
+        localStorage.setItem('userName', user);
         // Call parent callback with user data
         if (onRegisterSuccess) {
-          onRegisterSuccess({ userId: data.user_id || data.userId, name: data.name });
+          onRegisterSuccess({ userId: data.id, name: user });
         }
       } else if (response.status === 409) {
         const data = await response.json();

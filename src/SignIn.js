@@ -1,4 +1,6 @@
 import React from "react";
+import API_BASE_URL from "./config";
+
 function SignInForm({ onLoginSuccess }) {
   const [state, setState] = React.useState({
     user: "",
@@ -23,7 +25,7 @@ function SignInForm({ onLoginSuccess }) {
     const { user, password } = state;
 
     try {
-      const response = await fetch("http://localhost:3000/login", {
+      const response = await fetch(`${API_BASE_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -34,11 +36,11 @@ function SignInForm({ onLoginSuccess }) {
       if (response.status === 200) {
         const data = await response.json();
         // Store user data in localStorage
-        localStorage.setItem('userId', data.user_id || data.userId);
-        localStorage.setItem('userName', data.name);
+        localStorage.setItem('userId', data.id);
+        localStorage.setItem('userName', user);
         // Call parent callback with user data
         if (onLoginSuccess) {
-          onLoginSuccess({ userId: data.user_id || data.userId, name: data.name });
+          onLoginSuccess({ userId: data.id, name: user });
         }
       } else if (response.status === 400) {
         const data = await response.json();
