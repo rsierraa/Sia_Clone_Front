@@ -1,6 +1,7 @@
 import React from "react";
-function SignInForm({ onLoginSuccess }) {
+function SignUpForm({ onRegisterSuccess }) {
   const [state, setState] = React.useState({
+    name: "",
     user: "",
     password: ""
   });
@@ -20,69 +21,87 @@ function SignInForm({ onLoginSuccess }) {
     setError("");
     setLoading(true);
 
-    const { user, password } = state;
+    const { name, user, password } = state;
 
     try {
-      const response = await fetch("http://localhost:3000/login", {
+      const response = await fetch("http://localhost:3000/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ user, password })
+        body: JSON.stringify({ user, password, name })
       });
 
-      if (response.status === 200) {
+      if (response.status === 201) {
         const data = await response.json();
         // Store user data in localStorage
         localStorage.setItem('userId', data.user_id || data.userId);
         localStorage.setItem('userName', data.name);
         // Call parent callback with user data
-        if (onLoginSuccess) {
-          onLoginSuccess({ userId: data.user_id || data.userId, name: data.name });
+        if (onRegisterSuccess) {
+          onRegisterSuccess({ userId: data.user_id || data.userId, name: data.name });
         }
-      } else if (response.status === 400) {
+      } else if (response.status === 409) {
         const data = await response.json();
-        setError(data.error || "Usuario o contraseña incorrectos");
+        setError(data.error || "Usuario ya existente");
       } else {
-        setError("Error en el inicio de sesión");
+        setError("Error en el registro");
       }
     } catch (err) {
       setError("Network error. Please try again.");
-      console.error("Login error:", err);
+      console.error("Registration error:", err);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="form-container sign-in-container">
+    <div className="form-container sign-up-container">
       <form onSubmit={handleOnSubmit}>
-        <h1>Sign in</h1>
-        <span>or use your account</span>
+        <h1>Create Account</h1>
+        <div className="social-container">
+          <a href="#" className="social">
+            <i className="fab fa-facebook-f" />
+          </a>
+          <a href="#" className="social">
+            <i className="fab fa-google-plus-g" />
+          </a>
+          <a href="#" className="social">
+            <i className="fab fa-linkedin-in" />
+          </a>
+        </div>
+        <span>or use your email for registration</span>
         {error && <p style={{ color: "red" }}>{error}</p>}
         <input
           type="text"
-          placeholder="Username"
+          name="name"
+          value={state.name}
+          onChange={handleChange}
+          placeholder="Name"
+          required
+        />
+        <input
+          type="text"
           name="user"
           value={state.user}
           onChange={handleChange}
+          placeholder="Username"
           required
         />
         <input
           type="password"
           name="password"
-          placeholder="Password"
           value={state.password}
           onChange={handleChange}
+          placeholder="Password"
           required
         />
-        <a href="#">Forgot your password?</a>
         <button disabled={loading}>
-          {loading ? "Signing in..." : "Sign In"}
+          {loading ? "Signing up..." : "Sign Up"}
         </button>
       </form>
     </div>
   );
 }
 
-export default SignInForm;
+export default SignUpForm;
